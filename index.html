@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XML Indent</title>
+    <link rel="stylesheet" href="static/css/common.css" />
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            min-height: 100%;
+        }
+        textarea, pre {
+            width: 100%;
+            border: none;
+            background-color: #383838;
+            height: auto;
+
+            font: normal 1em Monaco;
+
+            color: #EEE;
+        }
+
+        .hl-pun {
+            color: #AAA;
+        }
+        .hl-tag {
+            color: #BFEDA7;
+            text-shadow: 0 1px #555;
+        }
+        .hl-att {
+            color: #99EABF;
+        }
+        .hl-att-val {
+            color: #A4D9FE;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <textarea></textarea>
+        <pre style="display: none;"></pre>
+
+        <!--
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+        <xsl:output method="xml" indent="yes"/>
+
+        <xsl:template match="*|@*|text()">
+            <xsl:copy>
+                <xsl:apply-templates select="*|@*|text()"/>
+            </xsl:copy>
+        </xsl:template>
+
+        </xsl:stylesheet>
+        -->
+    </div>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            var parser = new DOMParser();
+            var processor = new XSLTProcessor();
+            var serializer = new XMLSerializer();
+
+            var get = function(name){ return document.getElementsByTagName(name)[0]; }
+
+            var stylesheet = (function(d) {
+                var child = d.getElementsByTagName('div')[0].childNodes[0];
+                while (child.nodeType != 8 && (child = child.nextSibling));
+
+                return parser.parseFromString(child.nodeValue, 'text/xml');
+            })(document);
+
+            var parse = function(s) {
+
+                var chars = {
+                    '<' : '&lt;',
+                    '>' : '&gt;',
+                    '&' : '&amp;',
+                    '"' : '&quot;'
+                };
+
+                var attr = function(str) {
+                    return str.replace(/(\s+)([^=]+)(=)(")([^"]*)(")/g, function(){
+                        var args = arguments;
+                        return args[1]
+                            + '<span class="hl-att">' + args[2] + '</span>'
+                            + '<span class="hl-pun">=</span>'
+                            + '<span class="hl-pun">&quot;</span>'
+                            + '<span class="hl-att-val">' + args[5] + '</span>'
+                            + '<span class="hl-pun">&quot;</span>';
+                    });
+                };
+
+                return s.replace(/(<)(\/?)([^>\s]+)([^>]*)(\/?)(>)/g, function() {
+                    var args = arguments;
+                    return ''
+                        + '<span class="hl-pun">' + '&lt;' + args[2] + '</span>'
+                        + '<span class="hl-tag">' + args[3] + '</span>'
+                        + attr(args[4])
+                        + '<span class="hl-pun">' + args[5] + '&gt;' + '</span>';
+                });
+            }
+
+            processor.importStylesheet(stylesheet);
+
+            var collapse = function() {
+                var pre = get('pre');
+            };
+
+            get('textarea').focus();
+            get('textarea').addEventListener('paste', function(e) {
+                setTimeout(function() {
+                    var raw = this.value.replace(/\n/g, '').replace(/>\s+</g, '><');
+                    var source = parser.parseFromString(raw, 'text/xml');
+                    var result = processor.transformToDocument(source);
+
+                    str = serializer.serializeToString(result);
+                    get('pre').style.display = '';
+                    this.style.display = 'none';
+
+                    get('pre').innerHTML = parse(str);
+
+                    collapse();
+                }.bind(this), 10);
+            }, false);
+        };
+    </script>
+</body>
+</html>
