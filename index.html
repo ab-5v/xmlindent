@@ -142,28 +142,32 @@
             var collapse = function() {
 
                 var cln = 'tag tag-tg';
+                var pre = get('pre');
+                var tags = byClass('tag', pre);
 
-                var tags = byClass('tag', get('pre'));
+                pre.addEventListener('click', function(e){
+                    var tag = e.target.parentNode;
+                    if (/tag-tg/.test(tag.className) && /hl-tag/.test(e.target.className)) {
+                        e.stopPropagation();
+                        if (tag.className.indexOf('tag-tg_closed') == -1) {
+                            var pun = document.createElement('span');
+                            pun.className = 'hl-pun more';
+                            pun.innerHTML = ' ...';
+                            tag.className = cln + ' tag-tg_closed';
+                            byClass('hl-tag', tag)[0].appendChild(pun);
+                        } else {
+                            tag.className = cln;
+                            var pun = byClass('more', tag)[0];
+                            byClass('hl-tag', tag)[0].removeChild(pun);
+                        }
+                    }
+                }, false);
+
                 for (var i = 1, l = tags.length; i < l; i++) {
                     var tag = tags[i];
+
                     if (byClass('tag', tag).length > 0) {
                         tag.className = cln;
-                        tag.onclick = function(e) {
-                            e.stopPropagation();
-                            if (e.target.parentNode == e.currentTarget && /hl\-tag/.test(e.target.className)) {
-                                if (this.className.indexOf('tag-tg_closed') == -1) {
-                                    var pun = document.createElement('span');
-                                    pun.className = 'hl-pun more';
-                                    pun.innerHTML = ' ...';
-                                    this.className = cln + ' tag-tg_closed';
-                                    byClass('hl-tag', this)[0].appendChild(pun);
-                                } else {
-                                    this.className = cln;
-                                    var pun = byClass('more', this)[0];
-                                    byClass('hl-tag', this)[0].removeChild(pun);
-                                }
-                            }
-                        };
                     }
                 };
             };
