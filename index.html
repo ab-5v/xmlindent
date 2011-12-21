@@ -22,12 +22,13 @@
             color: #EEE;
         }
         .tag-tg {
+            position: relative;
         }
         .tag-tg:before,
         .tag-tg_closed:before {
             position: absolute;
-            margin-left: -1.5em;
-            margin-top: .3em;
+            left: -1.5em;
+            top: .3em;
             content: '▼';
             text-shadow: 0 1px #555;
             font-size: .6em;
@@ -38,8 +39,7 @@
         }
         .tag-tg_closed {
             display: inline-block;
-            height: 1.3em;
-            overflow: hidden;
+            white-space: normal;
         }
         .tag-tg_closed>*:not(:nth-child(-n+2)) {
             display: none;
