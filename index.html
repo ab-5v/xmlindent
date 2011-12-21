@@ -5,7 +5,7 @@
     <title>XML Indent</title>
     <link rel="stylesheet" href="static/css/common.css" />
     <style type="text/css">
-        * {
+        body, html, div, textarea, pre {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -17,29 +17,36 @@
             background-color: #383838;
             height: auto;
 
-            font: normal 1em Monaco;
+            font: normal 1em/1.4em Monaco;
 
             color: #EEE;
         }
-        .tag {
+        .tag-tg {
         }
-        .tag:before {
+        .tag-tg:before,
+        .tag-tg_closed:before {
             position: absolute;
             margin-left: -1.5em;
-            margin-top: .5em;
+            margin-top: .3em;
             content: '▼';
             text-shadow: 0 1px #555;
-            font-size: .7em;
+            font-size: .6em;
             color: #222;
-            cursor: hand;
         }
-        .tag_closed {
+        .tag-tg_closed:before {
+            content: '▶';
+        }
+        .tag-tg_closed {
             display: inline-block;
-            height: 1em;
+            height: 1.3em;
             overflow: hidden;
         }
-        .tag_closed:before {
-            content: '▶';
+        .tag-tg_closed>*:not(:nth-child(-n+2)) {
+            display: none;
+        }
+
+        .tag-tg>.hl-tag {
+            cursor: pointer;
         }
 
         .hl-pun {
@@ -84,6 +91,7 @@
             var serializer = new XMLSerializer();
 
             var get = function(name){ return document.getElementsByTagName(name)[0]; }
+            var byClass = function(name, el){ return (el||document).getElementsByClassName(name); }
 
             var stylesheet = (function(d) {
                 var child = d.getElementsByTagName('div')[0].childNodes[0];
@@ -117,8 +125,8 @@
                     var args = arguments;
                     var selfclosing = args[0].slice(args[0].length-2) === '/>' ? '/' : '';
 
-                    var open = !selfclosing && !args[2] ? '<span class="tag">' : '';
-                    var close = !selfclosing && args[2] ? '</span class="tag">': '';
+                    var open = !args[2] ? '<span class="tag">' : '';
+                    var close = selfclosing || args[2] ? '</span class="tag">': '';
 
                     return open
                         + '<span class="hl-pun">' + '&lt;' + args[2] + '</span>'
@@ -132,6 +140,32 @@
             processor.importStylesheet(stylesheet);
 
             var collapse = function() {
+
+                var cln = 'tag tag-tg';
+
+                var tags = byClass('tag', get('pre'));
+                for (var i = 1, l = tags.length; i < l; i++) {
+                    var tag = tags[i];
+                    if (byClass('tag', tag).length > 0) {
+                        tag.className = cln;
+                        tag.onclick = function(e) {
+                            e.stopPropagation();
+                            if (e.target.parentNode == e.currentTarget && /hl\-tag/.test(e.target.className)) {
+                                if (this.className.indexOf('tag-tg_closed') == -1) {
+                                    var pun = document.createElement('span');
+                                    pun.className = 'hl-pun more';
+                                    pun.innerHTML = ' ...';
+                                    this.className = cln + ' tag-tg_closed';
+                                    byClass('hl-tag', this)[0].appendChild(pun);
+                                } else {
+                                    this.className = cln;
+                                    var pun = byClass('more', this)[0];
+                                    byClass('hl-tag', this)[0].removeChild(pun);
+                                }
+                            }
+                        };
+                    }
+                };
             };
 
             get('textarea').focus();
