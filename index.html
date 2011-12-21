@@ -21,6 +21,26 @@
 
             color: #EEE;
         }
+        .tag {
+        }
+        .tag:before {
+            position: absolute;
+            margin-left: -1.5em;
+            margin-top: .5em;
+            content: '▼';
+            text-shadow: 0 1px #555;
+            font-size: .7em;
+            color: #222;
+            cursor: hand;
+        }
+        .tag_closed {
+            display: inline-block;
+            height: 1em;
+            overflow: hidden;
+        }
+        .tag_closed:before {
+            content: '▶';
+        }
 
         .hl-pun {
             color: #AAA;
@@ -93,20 +113,25 @@
                     });
                 };
 
-                return s.replace(/(<)(\/?)([^>\s]+)([^>]*)(\/?)(>)/g, function() {
+                return s.replace(/(<)(\/?)([^>\s\/]+)([^>]*)(>)/g, function() {
                     var args = arguments;
-                    return ''
+                    var selfclosing = args[0].slice(args[0].length-2) === '/>' ? '/' : '';
+
+                    var open = !selfclosing && !args[2] ? '<span class="tag">' : '';
+                    var close = !selfclosing && args[2] ? '</span class="tag">': '';
+
+                    return open
                         + '<span class="hl-pun">' + '&lt;' + args[2] + '</span>'
                         + '<span class="hl-tag">' + args[3] + '</span>'
-                        + attr(args[4])
-                        + '<span class="hl-pun">' + args[5] + '&gt;' + '</span>';
+                        + attr(selfclosing ? args[4].slice(0, args[4].length-1) : args[4])
+                        + '<span class="hl-pun">' + selfclosing + '&gt;' + '</span>'
+                        + close;
                 });
             }
 
             processor.importStylesheet(stylesheet);
 
             var collapse = function() {
-                var pre = get('pre');
             };
 
             get('textarea').focus();
