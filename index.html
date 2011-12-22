@@ -135,7 +135,27 @@
                         + '<span class="hl-pun">' + selfclosing + '&gt;' + '</span>'
                         + close;
                 });
-            }
+            };
+
+
+            get('pre').addEventListener('click', function(e){
+                var tag = e.target.parentNode;
+                var cln = 'tag tag-tg';
+                if (/tag-tg/.test(tag.className) && /hl-tag/.test(e.target.className)) {
+                    e.stopPropagation();
+                    if (tag.className.indexOf('tag-tg_closed') == -1) {
+                        var pun = document.createElement('span');
+                        pun.className = 'hl-pun more';
+                        pun.innerHTML = ' ...';
+                        tag.className = cln + ' tag-tg_closed';
+                        byClass('hl-tag', tag)[0].appendChild(pun);
+                    } else {
+                        tag.className = cln;
+                        var pun = byClass('more', tag)[0];
+                        byClass('hl-tag', tag)[0].removeChild(pun);
+                    }
+                }
+            }, false);
 
             processor.importStylesheet(stylesheet);
 
@@ -145,23 +165,6 @@
                 var pre = get('pre');
                 var tags = byClass('tag', pre);
 
-                pre.addEventListener('click', function(e){
-                    var tag = e.target.parentNode;
-                    if (/tag-tg/.test(tag.className) && /hl-tag/.test(e.target.className)) {
-                        e.stopPropagation();
-                        if (tag.className.indexOf('tag-tg_closed') == -1) {
-                            var pun = document.createElement('span');
-                            pun.className = 'hl-pun more';
-                            pun.innerHTML = ' ...';
-                            tag.className = cln + ' tag-tg_closed';
-                            byClass('hl-tag', tag)[0].appendChild(pun);
-                        } else {
-                            tag.className = cln;
-                            var pun = byClass('more', tag)[0];
-                            byClass('hl-tag', tag)[0].removeChild(pun);
-                        }
-                    }
-                }, false);
 
                 for (var i = 1, l = tags.length; i < l; i++) {
                     var tag = tags[i];
@@ -171,6 +174,17 @@
                     }
                 };
             };
+
+            document.addEventListener('keydown', function(e) {
+                if (e.which == 82 && e.metaKey) {
+                    e.preventDefault();
+                    get('pre').innerHTML = '';
+                    get('pre').style.display = 'none';
+                    get('textarea').value = '';
+                    get('textarea').style.display = '';
+                    get('textarea').focus();
+                }
+            }, false);
 
             get('textarea').focus();
             get('textarea').addEventListener('paste', function(e) {
