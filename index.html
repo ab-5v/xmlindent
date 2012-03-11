@@ -189,7 +189,7 @@
             get('textarea').focus();
             get('textarea').addEventListener('paste', function(e) {
                 setTimeout(function() {
-                    var raw = this.value.replace(/\n/g, '').replace(/>\s+</g, '><');
+                    var raw = this.value.replace(/\n/g, '').replace(/^[^<]*/, '').replace(/>\s+</g, '><');
                     var source = parser.parseFromString(raw, 'text/xml');
                     var result = processor.transformToDocument(source);
 
