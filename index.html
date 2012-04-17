@@ -137,23 +137,31 @@
                 });
             };
 
+            var cln = 'tag tag-tg';
+            var toggle = function(tag) {
+                if (tag.className.indexOf('tag-tg_closed') == -1) {
+
+                    var name = byClass('hl-att', tag)[0];
+                    var val = byClass('hl-att-val', tag)[0];
+                    var att = name && val && (' ' + name.innerHTML + '"=' + val.innerHTML + '"').substr(0, 40) || '';
+
+                    var pun = document.createElement('span');
+                    pun.className = 'hl-pun more';
+                    pun.innerHTML = att + ' ...';
+                    tag.className = cln + ' tag-tg_closed';
+                    byClass('hl-tag', tag)[0].appendChild(pun);
+                } else {
+                    tag.className = cln;
+                    var pun = byClass('more', tag)[0];
+                    byClass('hl-tag', tag)[0].removeChild(pun);
+                }
+            }
 
             get('pre').addEventListener('click', function(e){
                 var tag = e.target.parentNode;
-                var cln = 'tag tag-tg';
                 if (/tag-tg/.test(tag.className) && /hl-tag/.test(e.target.className)) {
                     e.stopPropagation();
-                    if (tag.className.indexOf('tag-tg_closed') == -1) {
-                        var pun = document.createElement('span');
-                        pun.className = 'hl-pun more';
-                        pun.innerHTML = ' ...';
-                        tag.className = cln + ' tag-tg_closed';
-                        byClass('hl-tag', tag)[0].appendChild(pun);
-                    } else {
-                        tag.className = cln;
-                        var pun = byClass('more', tag)[0];
-                        byClass('hl-tag', tag)[0].removeChild(pun);
-                    }
+                    toggle(tag);
                 }
             }, false);
 
@@ -161,16 +169,18 @@
 
             var collapse = function() {
 
-                var cln = 'tag tag-tg';
                 var pre = get('pre');
                 var tags = byClass('tag', pre);
-
 
                 for (var i = 1, l = tags.length; i < l; i++) {
                     var tag = tags[i];
 
                     if (byClass('tag', tag).length > 0) {
                         tag.className = cln;
+
+                        if (tag.parentNode.parentNode.nodeName.toLowerCase() == 'pre') {
+                            toggle(tag);
+                        }
                     }
                 };
             };
