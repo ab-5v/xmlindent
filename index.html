@@ -143,7 +143,7 @@
 
                     var name = byClass('hl-att', tag)[0];
                     var val = byClass('hl-att-val', tag)[0];
-                    var att = name && val && (' ' + name.innerHTML + '"=' + val.innerHTML + '"').substr(0, 40) || '';
+                    var att = name && val && (' ' + name.innerHTML + '="' + val.innerHTML + '"').substr(0, 40) || '';
 
                     var pun = document.createElement('span');
                     pun.className = 'hl-pun more';
